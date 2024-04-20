@@ -1,16 +1,26 @@
-// src/index.js
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
-
-dotenv.config();
+import { createServer } from "node:http";
+import path, { join } from "node:path";
+import { Server } from "socket.io";
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+const server = createServer(app);
+const io = new Server(server);
+
+let currentDir = path.dirname(module.filename)
+let words = currentDir.split('\\')
+words.pop();
+currentDir = words.join("\\")
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Express + TypeScript Server");
+  res.sendFile(join(currentDir, 'index.html'));
 });
 
-app.listen(port, () => {
+io.on('connection', (socket) => {
+  console.log("a user connected");
+})
+
+server.listen(3000, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
-});
+})
